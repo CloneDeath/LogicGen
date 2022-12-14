@@ -18,7 +18,7 @@ public abstract class ByteOperation : ITestCircuit {
 	protected abstract byte ExecuteOperation(byte a, byte b);
 
 	// https://stackoverflow.com/questions/24322417/how-to-convert-bool-array-in-one-byte-and-later-convert-back-in-bool-array
-	private static byte ConvertBoolArrayToByte(bool[] bits) {
+	public static byte ConvertBoolArrayToByte(bool[] bits) {
 		if (bits.Length != 8) throw new Exception("Got bits != 8");
 		
 		byte result = 0;
@@ -31,7 +31,7 @@ public abstract class ByteOperation : ITestCircuit {
 		return result;
 	}
 	
-	private static bool[] ConvertByteToBoolArray(byte b) {
+	public static bool[] ConvertByteToBoolArray(byte b) {
 		var bits = new bool[8];
 		for (var i = 0; i < 8; i++)
 			bits[i] = (b & (1 << i)) != 0;

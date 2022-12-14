@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace LogicGen; 
@@ -16,19 +17,25 @@ public class MatrixCircuit : ICircuit {
 
 	public bool[] Execute(params bool[] inputs) {
 		if (_inputs != inputs.Length) throw new NotImplementedException();
+		var cache = new Dictionary<int, bool>();
+		for (var i = 0; i < inputs.Length; i++) {
+			cache[i] = inputs[i];
+		}
 
 		var result = new bool[_outputs];
 		for (var i = 0; i < _outputs; i++) {
 			var index = _data.Size - i - 1;
-			result[i] = GetOutput(index, inputs);
+			result[i] = GetOutput(index, cache);
 		}
 		return result;
 	}
 
-	private bool GetOutput(int index, bool[] inputs) {
-		if (index < inputs.Length) return inputs[index];
+	private bool GetOutput(int index, Dictionary<int, bool> cache) {
+		if (cache.ContainsKey(index)) return cache[index];
 		var sourceIndexes = _data.GetInputsFor(index);
-		var sourceValues = sourceIndexes.Select(i => GetOutput(i, inputs));
-		return !sourceValues.All(i => i); // NAND
+		var sourceValues = sourceIndexes.Select(i => GetOutput(i, cache));
+		var output = !sourceValues.All(i => i); // NAND
+		cache[index] = output;
+		return output;
 	}
 }
