@@ -3,32 +3,41 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LogicGen.ByteOperations;
 using LogicGen.LogicGates;
 
 namespace LogicGen; 
 
 public static class Program {
 	public static void Main() {
-		TestCircuit(new NotGate(), 1);
-		TestCircuit(new OrGate(), 2);
-		TestCircuit(new AndGate(), 2);
-		TestCircuit(new NOrGate(), 2);
-		TestCircuit(new NAndGate(), 2);
-		TestCircuit(new XOrGate(), 2);
-		TestCircuit(new XNOrGate(), 2);
+		TestCircuit(new NotGate());
+		TestCircuit(new OrGate());
+		TestCircuit(new AndGate());
+		TestCircuit(new NOrGate());
+		TestCircuit(new NAndGate());
+		TestCircuit(new XOrGate());
+		TestCircuit(new XNOrGate());
+		Console.WriteLine();
+
+		TestCircuit(new AddOperation());
+		TestCircuit(new BitwiseAndOperation());
+		TestCircuit(new BitwiseOrOperation());
+		TestCircuit(new DivideOperation());
+		TestCircuit(new MultiplyOperation());
+		TestCircuit(new SubtractOperation());
 	}
 
-	public static void TestCircuit(ITestCircuit basis, int inputs) {
+	public static void TestCircuit(ITestCircuit basis) {
 		var ruleSets = new List<RuleSet>();
-		for (var i = 0; i < 100000; i++) {
+		for (var i = 0; i < 1000; i++) {
 			ruleSets.Add(RandomRuleSet.Generate(20));
 		}
 
 		CircuitResult? best = null;
 		foreach (var ruleSet in ruleSets) {
 			// https://en.wikipedia.org/wiki/NAND_logic
-			var circuit = ruleSet.GenerateCircuit(inputs, 1, 10);
-			var error = GetError(circuit, basis, inputs);
+			var circuit = ruleSet.GenerateCircuit(basis.NumberOfInputs, basis.NumberOfOutputs, 10);
+			var error = GetError(circuit, basis, basis.NumberOfInputs);
 			if (best == null || error < best.Error) {
 				best = new CircuitResult(ruleSet, circuit, error);
 			}

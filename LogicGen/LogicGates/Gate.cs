@@ -6,5 +6,7 @@ public abstract class Gate : ITestCircuit {
 	}
 
 	public abstract string Name { get; }
+	public virtual int NumberOfInputs => 2;
+	public virtual int NumberOfOutputs => 1;
 	protected abstract bool ExecuteGate(params bool[] inputs);
 }

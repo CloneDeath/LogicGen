@@ -4,6 +4,8 @@ namespace LogicGen.ByteOperations;
 
 public abstract class ByteOperation : ITestCircuit {
 	public abstract string Name { get; }
+	public int NumberOfInputs => 16;
+	public int NumberOfOutputs => 8;
 
 	public bool[] Execute(params bool[] inputs) {
 		if (inputs.Length != 16) throw new NotImplementedException();
