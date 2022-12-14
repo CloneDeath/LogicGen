@@ -8,26 +8,34 @@ using LogicGen.LogicGates;
 namespace LogicGen; 
 
 public static class Program {
-	public static void Main(string[] args) {
+	public static void Main() {
+		TestCircuit(new NotGate(), 1);
+		TestCircuit(new OrGate(), 2);
+		TestCircuit(new AndGate(), 2);
+		TestCircuit(new NOrGate(), 2);
+		TestCircuit(new NAndGate(), 2);
+		TestCircuit(new XOrGate(), 2);
+		TestCircuit(new XNOrGate(), 2);
+	}
+
+	public static void TestCircuit(Gate basis, int inputs) {
 		var ruleSets = new List<RuleSet>();
-		for (var i = 0; i < 100; i++) {
+		for (var i = 0; i < 100000; i++) {
 			ruleSets.Add(RandomRuleSet.Generate(20));
 		}
 
-		var basis = new NotGate();
 		CircuitResult? best = null;
 		foreach (var ruleSet in ruleSets) {
 			// https://en.wikipedia.org/wiki/NAND_logic
-			var circuit = ruleSet.GenerateCircuit(1, 1, 5);
-			var error = GetError(circuit, basis, 1);
-			Console.WriteLine(error);
-
+			var circuit = ruleSet.GenerateCircuit(inputs, 1, 10);
+			var error = GetError(circuit, basis, inputs);
 			if (best == null || error < best.Error) {
 				best = new CircuitResult(ruleSet, circuit, error);
 			}
+			if (error <= 0) break;
 		}
 
-		Console.WriteLine(best?.Error);
+		Console.WriteLine($"{basis.Name} {1 - best?.Error}");
 	}
 
 	private static double GetError(ICircuit circuit, ICircuit basis, int inputCount) {
