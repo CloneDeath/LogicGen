@@ -1,6 +1,6 @@
 namespace LogicGen.LogicGates; 
 
-public abstract class Gate : ICircuit {
+public abstract class Gate : ITestCircuit {
 	public bool[] Execute(params bool[] inputs) {
 		return new[]{ExecuteGate(inputs)};
 	}

@@ -18,7 +18,7 @@ public static class Program {
 		TestCircuit(new XNOrGate(), 2);
 	}
 
-	public static void TestCircuit(Gate basis, int inputs) {
+	public static void TestCircuit(ITestCircuit basis, int inputs) {
 		var ruleSets = new List<RuleSet>();
 		for (var i = 0; i < 100000; i++) {
 			ruleSets.Add(RandomRuleSet.Generate(20));
