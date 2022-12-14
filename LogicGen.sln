@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicGen", "LogicGen\LogicGen.csproj", "{4A9DDEC2-89FA-4AD1-8580-7DCAAF6AA99C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A9DDEC2-89FA-4AD1-8580-7DCAAF6AA99C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A9DDEC2-89FA-4AD1-8580-7DCAAF6AA99C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A9DDEC2-89FA-4AD1-8580-7DCAAF6AA99C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A9DDEC2-89FA-4AD1-8580-7DCAAF6AA99C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
