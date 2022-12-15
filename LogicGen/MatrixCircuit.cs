@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace LogicGen; 
@@ -17,7 +18,7 @@ public class MatrixCircuit : ICircuit {
 
 	public bool[] Execute(params bool[] inputs) {
 		if (_inputs != inputs.Length) throw new NotImplementedException();
-		var cache = new Dictionary<int, bool>();
+		var cache = new Dictionary<int, bool>(_data.Size);
 		for (var i = 0; i < inputs.Length; i++) {
 			cache[i] = inputs[i];
 		}

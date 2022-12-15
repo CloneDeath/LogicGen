@@ -50,11 +50,17 @@ public class Matrix {
 		return new Matrix(data);
 	}
 
+	private readonly Dictionary<int, int[]> dependencyCache = new();
+
 	public int[] GetInputsFor(int index) {
+		if (dependencyCache.ContainsKey(index)) return dependencyCache[index];
+		
 		var inputs = new List<int>();
 		for (var x = 0; x < Size; x++) {
 			if (this[x, index] == 1) inputs.Add(x);
 		}
-		return inputs.ToArray();
+		var dependency = inputs.ToArray();
+		dependencyCache[index] = dependency;
+		return dependency;
 	}
 }
