@@ -4,10 +4,13 @@ using System.Linq;
 namespace LogicGen; 
 
 public class RuleSet {
-	private List<Rule> Rules { get; }
+	public IReadOnlyList<Rule> VariableRules { get; }
+	private static IReadOnlyList<Rule> ConstantRules { get; } = GetConstantRules().ToList();
 
-	public RuleSet(List<Rule> rules) {
-		Rules = rules;
+	private IEnumerable<Rule> Rules => ConstantRules.Concat(VariableRules);
+
+	public RuleSet(IEnumerable<Rule> rules) {
+		VariableRules = rules.ToList();
 	}
 	
 	public ICircuit GenerateCircuit(int inputs, int outputs, int intermediates) {
@@ -43,7 +46,7 @@ public class RuleSet {
 
 	protected Rule GetRule(int index) => Rules.First(r => r.Index == index);
 
-	public static IEnumerable<Rule> GetConstantRules() {
+	private static IEnumerable<Rule> GetConstantRules() {
 		yield return new Rule(0, new Matrix(new[,] { { 0, 0 }, { 0, 0 } }));
 		yield return new Rule(1, new Matrix(new[,] { { 1, 1 }, { 1, 1 } }));
 		for (var i = 0; i < IndexToName.StartIndex - 2; i++) {
