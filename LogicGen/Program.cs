@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LogicGen.ByteOperations;
 using LogicGen.Genetics;
@@ -26,7 +27,9 @@ public static class Program {
 		TestCircuit(new BitwiseAndOperation());
 		TestCircuit(new BitwiseOrOperation());
 		TestCircuit(new MultiplyOperation());*/
+		var stopwatch = Stopwatch.StartNew();
 		TestCircuit(new DivideOperation());
+		Console.WriteLine($"Total Time: {stopwatch.Elapsed}");
 	}
 
 	public static void TestCircuit(ITestCircuit basis) {
