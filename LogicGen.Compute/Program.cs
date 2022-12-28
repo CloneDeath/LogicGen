@@ -28,8 +28,9 @@ public static class Program {
 				}
 			}
 		});
-
+		
 		var queue = vk.GetDeviceQueue(device, queueFamilyIndex, 0);
+
 		const uint memorySize = 1024;
 		var memoryTypeIndex = GetMemoryTypeIndex(vk, physicalDevice, (int)memorySize) 
 		                      ?? throw new Exception("Could not find a suitable memory type");
@@ -69,7 +70,7 @@ public static class Program {
 			Code = File.ReadAllBytes("Shader/sample.spv")
 		});
 
-		var layout = vk.CreateDescriptorSetLayout(device, new DescriptorSetLayoutCreateInformation {
+		var descriptorSetLayout = vk.CreateDescriptorSetLayout(device, new DescriptorSetLayoutCreateInformation {
 			Bindings = new [] {
 				new DescriptorSetLayoutBindingInformation {
 					Binding = 0, 
@@ -86,13 +87,56 @@ public static class Program {
 			}
 		});
 
+		var descriptorPool = vk.CreateDescriptorPool(device, new DescriptorPoolCreateInformation {
+			PoolSizes = new [] {
+				new DescriptorPoolSize {
+					Type = DescriptorType.StorageBuffer,
+					DescriptorCount = 2
+				}
+			},
+			MaxSets = 1
+		});
+		var descriptorSet = vk.AllocateDescriptorSets(device, new DescriptorSetAllocateInformation {
+			SetLayouts = new[] { descriptorSetLayout },
+			DescriptorPool = descriptorPool
+		}).First();
+
+		vk.UpdateDescriptorSets(device, new[] {
+			new WriteDescriptorSetInfo {
+				DstSet = descriptorSet,
+				DstBinding = 0,
+				DescriptorCount = 1,
+				DescriptorType = DescriptorType.StorageBuffer,
+				BufferInfo = new [] {
+					new DescriptorBufferInfo {
+						Buffer = inBuffer,
+						Offset = 0,
+						Range = Vk.WholeSize
+					}
+				}
+			},
+			new WriteDescriptorSetInfo {
+				DstSet = descriptorSet,
+				DstBinding = 1,
+				DescriptorCount = 1,
+				DescriptorType = DescriptorType.StorageBuffer,
+				BufferInfo = new [] {
+					new DescriptorBufferInfo {
+						Buffer = outBuffer,
+						Offset = 0,
+						Range = Vk.WholeSize
+					}
+				}
+			}
+		}, Array.Empty<CopyDescriptorSetInfo>());
+
 		var pipelineLayout = vk.CreatePipelineLayout(device, new PipelineLayoutCreateInformation {
 			SetLayouts = new [] {
-				layout
+				descriptorSetLayout
 			}
 		});
 
-		var pipeline = vk.CreateComputePipeline(device, default, new ComputePipelineCreateInformation {
+		var computePipeline = vk.CreateComputePipeline(device, default, new ComputePipelineCreateInformation {
 			Layout = pipelineLayout,
 			Stage = new PipelineShaderStateCreateInformation {
 				Stage = ShaderStageFlags.ComputeBit,
@@ -116,10 +160,33 @@ public static class Program {
 			Flags = CommandBufferUsageFlags.OneTimeSubmitBit
 		}).AssertSuccess();
 		
-		// Continue here
+		vk.CmdBindPipeline(commandBuffer, PipelineBindPoint.Compute, computePipeline);
+		vk.CmdBindDescriptorSets(commandBuffer, PipelineBindPoint.Compute, pipelineLayout, 0, 
+			new[] { descriptorSet }, new uint[0]);
+		vk.CmdDispatch(commandBuffer, memorySize / sizeof(int), 1, 1);
 		
 		vk.EndCommandBuffer(commandBuffer).AssertSuccess();
 
+		vk.QueueSubmit(queue, new SubmitInformation[] {
+			new() {
+				CommandBuffers = new[]{commandBuffer}
+			}
+		}, default);
+		
+		vk.QueueWaitIdle(queue).AssertSuccess();
+
+		unsafe {
+			int* payload;
+			vk.MapMemory(device, deviceMemory, 0, memorySize, 0, (void**)&payload);
+			const uint offset = inBufferSize / sizeof(int);
+			for (var k = 0; k < offset; k++) {
+				if (payload[offset + k] != payload[k]) {
+					throw new Exception($"Value differs around item {k}");
+				}
+
+				Console.WriteLine($"{payload[offset + k]} == {payload[k]}");
+			}
+		}
 	}
 
 	private static PhysicalDevice PickPhysicalDevice(Vk vk, IEnumerable<PhysicalDevice> physicalDevices) {
