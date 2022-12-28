@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{6D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilkNetConvenience.Vulkan", "External\SilkNetConvenience\SilkNetConvenience.Vulkan\SilkNetConvenience.Vulkan.csproj", "{CBC750CA-CA4C-4469-A3B3-C5EB9F353DA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicGen.Compute.Tests", "LogicGen.Compute.Tests\LogicGen.Compute.Tests.csproj", "{66949527-F86C-42BA-8DF6-82B34031B281}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{CBC750CA-CA4C-4469-A3B3-C5EB9F353DA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBC750CA-CA4C-4469-A3B3-C5EB9F353DA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBC750CA-CA4C-4469-A3B3-C5EB9F353DA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66949527-F86C-42BA-8DF6-82B34031B281}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66949527-F86C-42BA-8DF6-82B34031B281}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66949527-F86C-42BA-8DF6-82B34031B281}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66949527-F86C-42BA-8DF6-82B34031B281}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CBC750CA-CA4C-4469-A3B3-C5EB9F353DA4} = {6D7CDBB5-5725-4B4B-A681-0EF11CCD665D}

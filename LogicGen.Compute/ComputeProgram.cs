@@ -1,16 +1,23 @@
-﻿using Silk.NET.Vulkan;
+using Silk.NET.Vulkan;
 using SilkNetConvenience;
 using SilkNetConvenience.CreateInfo;
 using SilkNetConvenience.Exceptions;
 
 namespace LogicGen.Compute; 
 
-public static class Program {
-	public static void Main() {
-		var vk = Vk.GetApi();
+public class ComputeProgram {
+	private readonly byte[] _code;
+	private readonly string _entryPoint;
+
+	public ComputeProgram(byte[] code, string entryPoint) {
+		_code = code;
+		_entryPoint = entryPoint;
+	}
+	public byte[] Execute(byte[] input) {
+		using var vk = Vk.GetApi();
 		var instance = vk.CreateInstance(new InstanceCreateInformation {
 			ApplicationInfo = new ApplicationInformation {
-				ApplicationName = "Vulkan Compute Demo"
+				ApplicationName = "LogicGen.Compute"
 			},
 			EnabledLayerNames = new[] {
 				"VK_LAYER_KHRONOS_validation"
@@ -31,43 +38,44 @@ public static class Program {
 		
 		var queue = vk.GetDeviceQueue(device, queueFamilyIndex, 0);
 
-		const uint memorySize = 1024;
-		var memoryTypeIndex = GetMemoryTypeIndex(vk, physicalDevice, (int)memorySize) 
+		var memorySize = (uint)input.Length;
+		var memoryTypeIndex = GetMemoryTypeIndex(vk, physicalDevice, memorySize) 
 		                      ?? throw new Exception("Could not find a suitable memory type");
 
-		var deviceMemory = vk.AllocateMemory(device, new MemoryAllocateInformation {
+		var inputMemory = vk.AllocateMemory(device, new MemoryAllocateInformation {
 			AllocationSize = memorySize,
 			MemoryTypeIndex = (uint)memoryTypeIndex
 		});
 
-		const uint inBufferSize = 512;
+		var outputMemory = vk.AllocateMemory(device, new MemoryAllocateInformation {
+			AllocationSize = (uint)input.Length,
+			MemoryTypeIndex = (uint)memoryTypeIndex
+		});
+
 		var inBuffer = vk.CreateBuffer(device, new BufferCreateInformation {
 			Usage = BufferUsageFlags.StorageBufferBit,
 			SharingMode = SharingMode.Exclusive,
 			QueueFamilyIndices = new[] { queueFamilyIndex },
-			Size = inBufferSize
+			Size = (uint)input.Length
 		});
 		var outBuffer = vk.CreateBuffer(device, new BufferCreateInformation {
 			Usage = BufferUsageFlags.StorageBufferBit,
 			SharingMode = SharingMode.Exclusive,
 			QueueFamilyIndices = new []{ queueFamilyIndex },
-			Size = memorySize - inBufferSize
+			Size = (uint)input.Length
 		});
-		vk.BindBufferMemory(device, inBuffer, deviceMemory, 0);
-		vk.BindBufferMemory(device, outBuffer, deviceMemory, inBufferSize);
+		vk.BindBufferMemory(device, inBuffer, inputMemory, 0);
+		vk.BindBufferMemory(device, outBuffer, outputMemory, 0);
 
-		var random = new Random();
 		unsafe {
-			int* data;
-			vk.MapMemory(device, deviceMemory, 0, memorySize, 0, (void**)&data);
-			for (var i = 0; i < memorySize / sizeof(int); i++) {
-				data[i] = random.Next();
-			}
-			vk.UnmapMemory(device, deviceMemory);
+			void* data = null;
+			vk.MapMemory(device, inputMemory, 0, (uint)input.Length, 0, ref data);
+			input.AsSpan().CopyTo(new Span<byte>(data, input.Length));
+			vk.UnmapMemory(device, inputMemory);
 		}
 
 		var shaderModule = vk.CreateShaderModule(device, new ShaderModuleCreateInformation {
-			Code = File.ReadAllBytes("Shader/sample.spv")
+			Code = _code
 		});
 
 		var descriptorSetLayout = vk.CreateDescriptorSetLayout(device, new DescriptorSetLayoutCreateInformation {
@@ -141,7 +149,7 @@ public static class Program {
 			Stage = new PipelineShaderStateCreateInformation {
 				Stage = ShaderStageFlags.ComputeBit,
 				Module = shaderModule,
-				Name = "main"
+				Name = _entryPoint
 			}
 		});
 
@@ -162,8 +170,8 @@ public static class Program {
 		
 		vk.CmdBindPipeline(commandBuffer, PipelineBindPoint.Compute, computePipeline);
 		vk.CmdBindDescriptorSets(commandBuffer, PipelineBindPoint.Compute, pipelineLayout, 0, 
-			new[] { descriptorSet }, new uint[0]);
-		vk.CmdDispatch(commandBuffer, memorySize / sizeof(int), 1, 1);
+			new[] { descriptorSet }, Array.Empty<uint>());
+		vk.CmdDispatch(commandBuffer, (uint)input.Length, 1, 1);
 		
 		vk.EndCommandBuffer(commandBuffer).AssertSuccess();
 
@@ -175,18 +183,14 @@ public static class Program {
 		
 		vk.QueueWaitIdle(queue).AssertSuccess();
 
+		var result = new byte[input.Length];
 		unsafe {
-			int* payload;
-			vk.MapMemory(device, deviceMemory, 0, memorySize, 0, (void**)&payload);
-			const uint offset = inBufferSize / sizeof(int);
-			for (var k = 0; k < offset; k++) {
-				if (payload[offset + k] != payload[k]) {
-					throw new Exception($"Value differs around item {k}");
-				}
-
-				Console.WriteLine($"{payload[offset + k]} == {payload[k]}");
-			}
+			void* output;
+			vk.MapMemory(device, outputMemory, 0, (uint)result.Length, 0, &output);
+			new Span<byte>(output, result.Length).CopyTo(result);
+			vk.UnmapMemory(device, inputMemory);
 		}
+		return result;
 	}
 
 	private static PhysicalDevice PickPhysicalDevice(Vk vk, IEnumerable<PhysicalDevice> physicalDevices) {
