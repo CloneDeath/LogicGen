@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicGen", "LogicGen\LogicGen.csproj", "{4A9DDEC2-89FA-4AD1-8580-7DCAAF6AA99C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicGen.Compute", "LogicGen.Compute\LogicGen.Compute.csproj", "{51556380-206C-4A1B-BA36-E1450C1902E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilkNetConvenience.Vulkan", "..\..\Graphics\SilkNetConvenience\SilkNetConvenience.Vulkan\SilkNetConvenience.Vulkan.csproj", "{E9697353-83C5-45CE-A752-6788CE62FD10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{4A9DDEC2-89FA-4AD1-8580-7DCAAF6AA99C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A9DDEC2-89FA-4AD1-8580-7DCAAF6AA99C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A9DDEC2-89FA-4AD1-8580-7DCAAF6AA99C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51556380-206C-4A1B-BA36-E1450C1902E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51556380-206C-4A1B-BA36-E1450C1902E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51556380-206C-4A1B-BA36-E1450C1902E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51556380-206C-4A1B-BA36-E1450C1902E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9697353-83C5-45CE-A752-6788CE62FD10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9697353-83C5-45CE-A752-6788CE62FD10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9697353-83C5-45CE-A752-6788CE62FD10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9697353-83C5-45CE-A752-6788CE62FD10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
