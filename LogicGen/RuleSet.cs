@@ -21,7 +21,7 @@ public class RuleSet {
 		}
 
 		matrix = matrix.ToBinary().ToForwardOnly();
-		return new MatrixCircuit(inputs, outputs, matrix);
+		return new ComputeMatrixCircuit(inputs, outputs, matrix);
 	}
 
 	private Matrix GetMatrix(Matrix seed) {

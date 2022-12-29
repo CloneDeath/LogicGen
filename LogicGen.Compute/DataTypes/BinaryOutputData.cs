@@ -1,6 +1,4 @@
-using System;
-
-namespace LogicGen.Compute.Tests.DataTypes; 
+namespace LogicGen.Compute.DataTypes; 
 
 public class BinaryOutputData : IOutputData {
 	private readonly int _count;
@@ -11,7 +9,6 @@ public class BinaryOutputData : IOutputData {
 		Data = new byte[count * sizeof(int)];
 	}
 	public uint BindingIndex { get; }
-	public int Size => _count * sizeof(int);
 	public byte[] Data { get; set; }
 
 	public bool[] BinaryData {

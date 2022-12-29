@@ -29,10 +29,10 @@ public class ComputeCommandBuffer : IDisposable {
 		ReleaseUnmanagedResources();
 	}
 
-	public void Begin() {
+	public void Begin(CommandBufferUsageFlags flags = CommandBufferUsageFlags.None) {
 		_vk.BeginCommandBuffer(CommandBuffer, new CommandBufferBeginInfo {
 			SType = StructureType.CommandBufferBeginInfo,
-			Flags = CommandBufferUsageFlags.OneTimeSubmitBit
+			Flags = flags
 		}).AssertSuccess();
 	}
 

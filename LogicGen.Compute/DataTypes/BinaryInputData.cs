@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
-
-namespace LogicGen.Compute.Tests.DataTypes; 
+namespace LogicGen.Compute.DataTypes; 
 
 public class BinaryInputData : IInputData {
 	public BinaryInputData(uint bindingIndex, bool[] data) {

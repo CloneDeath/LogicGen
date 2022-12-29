@@ -105,7 +105,6 @@ public class ComputeDevice : IDisposable {
 			QueueFamilyIndices = new[] { _queueFamilyIndex },
 			Size = memory.Size
 		});
-		_vk.BindBufferMemory(_device, buffer, memory.Memory, 0);
 		return new ComputeBuffer(buffer, _device, _vk);
 	}
 
@@ -117,16 +116,7 @@ public class ComputeDevice : IDisposable {
 	}
 
 	public ComputeDescriptorPool CreateDescriptorPool(uint descriptorCount) {
-		var descriptorPool = _vk.CreateDescriptorPool(_device, new DescriptorPoolCreateInformation {
-			PoolSizes = new [] {
-				new DescriptorPoolSize {
-					Type = DescriptorType.StorageBuffer,
-					DescriptorCount = descriptorCount
-				}
-			},
-			MaxSets = 1
-		});
-		return new ComputeDescriptorPool(descriptorPool, _device, _vk);
+		return new ComputeDescriptorPool(descriptorCount, _device, _vk);
 	}
 
 	public ComputeDescriptorSetLayout CreateDescriptorSetLayout(IEnumerable<uint> bindingIndices) {

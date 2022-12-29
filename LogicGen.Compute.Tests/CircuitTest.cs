@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
-using LogicGen.Compute.Tests.DataTypes;
+using LogicGen.Compute.DataTypes;
 
 namespace LogicGen.Compute.Tests; 
 
@@ -13,8 +13,10 @@ public class CircuitTest {
 	[TestCase(true,  false, false)]
 	[TestCase(true,  true,  true)]
 	public void WorksWithAndCircuit(bool a, bool b, bool expected) {
-		var code = File.ReadAllBytes("Shader/circuit.spv");
-		var program = new ComputeProgram(code, "main");
+		var shader = new ShaderData {
+			Code = File.ReadAllBytes("Shader/circuit.spv"),
+			EntryPoint = "main"
+		};
 		const int circuitSize = 4;
 		var AndCircuit = new[] {
 			false, false, true, false,
@@ -30,15 +32,19 @@ public class CircuitTest {
 				.ToArray()
 		};
 		
-		var output = new BinaryOutputData(2, 4);
+		using var program = new ComputeProgram(shader,new GroupCount(4),
+			new DataDescription(0, (uint)circuitData.Data.Length),
+			new DataDescription(1, circuitSize * sizeof(int)),
+			new DataDescription(2, circuitSize * sizeof(int)));
+		
+		var output = new BinaryOutputData(2, circuitSize);
 		for (var i = 0; i < circuitSize; i++) {
 			var inputs = output.BinaryData.ToArray();
 			inputs[0] = a;
 			inputs[1] = b;
 			var input = new BinaryInputData(1, inputs);
 			program.Execute(new IInputData[] { circuitData, input }, 
-				new IOutputData[] { output }, 
-				new GroupCount(circuitSize));
+				new IOutputData[] { output });
 			Console.WriteLine(
 				string.Join(" ", inputs)
 				+ " -> "

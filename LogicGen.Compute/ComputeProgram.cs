@@ -2,92 +2,97 @@ using LogicGen.Compute.Components;
 
 namespace LogicGen.Compute; 
 
-public class ComputeProgram {
-	private readonly byte[] _code;
-	private readonly string _entryPoint;
+public class ComputeProgram : IDisposable {
+	private readonly ComputeDevice _device;
+	
+	private readonly ComputeDescriptorPool _descriptorPool;
+	private readonly ComputeDescriptorSetLayout _descriptorSetLayout;
+	private readonly List<ComputeMemory> _memory = new();
+	private readonly List<ComputeBuffer> _buffers = new();
+	private readonly ComputeDescriptorSet _descriptorSet;
+	private readonly ComputeShaderModule _shaderModule;
+	private readonly ComputePipeline _computePipeline;
+	private readonly ComputeCommandPool _commandPool;
+	private readonly ComputeCommandBuffer _commandBuffer;
 
-	public ComputeProgram(byte[] code, string entryPoint) {
-		_code = code;
-		_entryPoint = entryPoint;
-	}
-	public void Execute(IInputData[] inputs, IOutputData[] outputs, GroupCount workers) {
-		using var device = new ComputeDevice();
+	private readonly Dictionary<uint, ComputeMemory> _bindingMemoryMap = new();
+
+	public ComputeProgram(IShaderData shaderData, GroupCount workers, params IDataDescription[] dataDescriptions) {
+		_device = new ComputeDevice();
 
 		var descriptorSets = new List<DescriptorSetInfo>();
+		foreach (var dataDescription in dataDescriptions) {
+			var memory = _device.AllocateMemory(dataDescription.Size);
+			_memory.Add(memory);
+			_bindingMemoryMap[dataDescription.BindingIndex] = memory;
+			
+			var buffer = _device.CreateBuffer(memory);
+			buffer.BindMemory(memory);
+			_buffers.Add(buffer);
 
-		var inputMemory = new List<ComputeMemory>();
-		var inputBuffers = new List<ComputeBuffer>();
+			descriptorSets.Add(new DescriptorSetInfo(dataDescription.BindingIndex, buffer));
+		}
+
+		_descriptorPool = _device.CreateDescriptorPool((uint)dataDescriptions.Length);
+		
+		var bindingIndices = dataDescriptions.Select(d => d.BindingIndex).ToArray();
+		_descriptorSetLayout = _device.CreateDescriptorSetLayout(bindingIndices);
+		
+		_descriptorSet = _descriptorPool.AllocateDescriptorSet(_descriptorSetLayout);
+		_descriptorSet.UpdateDescriptorSets(descriptorSets);
+
+		using var pipelineLayout = _device.CreatePipelineLayout(_descriptorSetLayout);
+
+		_shaderModule = _device.CreateShaderModule(shaderData.Code);
+		_computePipeline = _device.CreateComputePipeline(pipelineLayout, _shaderModule, shaderData.EntryPoint);
+
+		_commandPool = _device.CreateCommandPool();
+		_commandBuffer = _commandPool.AllocateCommandBuffer();
+		_commandBuffer.Begin();
+		{
+			_commandBuffer.BindPipeline(_computePipeline);
+			_commandBuffer.BindDescriptorSet(pipelineLayout, _descriptorSet);
+			_commandBuffer.Dispatch(workers);
+		}
+		_commandBuffer.End();
+	}
+
+	public void Dispose() {
+		_commandBuffer.Dispose();
+		_commandPool.Dispose();
+		_computePipeline.Dispose();
+		_shaderModule.Dispose();
+		_descriptorSet.Dispose();
+		
+		var disposables = new List<IDisposable>()
+			.Concat(_memory)
+			.Concat(_buffers);
+		foreach (var disposable in disposables) disposable.Dispose();
+		
+		_descriptorSetLayout.Dispose();
+		_descriptorPool.Dispose();
+		_device.Dispose();
+		GC.SuppressFinalize(this);
+	}
+
+	public void Execute(IInputData[] inputs, IOutputData[] outputs) {
 		foreach (var input in inputs) {
-			var memory = device.AllocateMemory((uint)input.Data.Length);
-			inputMemory.Add(memory);
-			
-			var buffer = device.CreateBuffer(memory);
-			inputBuffers.Add(buffer);
-			
+			var memory = _bindingMemoryMap[input.BindingIndex];
 			var data = memory.MapMemory();
 			input.Data.CopyTo(data);
 			memory.UnmapMemory();
-
-			descriptorSets.Add(new DescriptorSetInfo(input.BindingIndex, buffer));
 		}
-
-		var outputMemory = new List<ComputeMemory>();
-		var outputBuffers = new List<ComputeBuffer>();
-		foreach (var output in outputs) {
-			var memory = device.AllocateMemory((uint)output.Size);
-			outputMemory.Add(memory);
-
-			var buffer = device.CreateBuffer(memory);
-			outputBuffers.Add(buffer);
-			
-			descriptorSets.Add(new DescriptorSetInfo(output.BindingIndex, buffer));
-		}
-
-		using var descriptorPool = device.CreateDescriptorPool((uint)(inputBuffers.Count + outputBuffers.Count));
-
-		var inputBindings = inputs.Select(i => i.BindingIndex);
-		var outputBindings = outputs.Select(o => o.BindingIndex);
-		var bindingIndexes = inputBindings.Concat(outputBindings);
-
-		using var descriptorSetLayout = device.CreateDescriptorSetLayout(bindingIndexes);
-
-		using var descriptorSet = descriptorPool.AllocateDescriptorSet(descriptorSetLayout);
-		descriptorSet.UpdateDescriptorSets(descriptorSets);
-
-		using var pipelineLayout = device.CreatePipelineLayout(descriptorSetLayout);
-
-		using var shaderModule = device.CreateShaderModule(_code);
-		using var computePipeline = device.CreateComputePipeline(pipelineLayout, shaderModule, _entryPoint);
-
-		using var commandPool = device.CreateCommandPool();
-		using var commandBuffer = commandPool.AllocateCommandBuffer();
-		commandBuffer.Begin();
-		{
-			commandBuffer.BindPipeline(computePipeline);
-			commandBuffer.BindDescriptorSet(pipelineLayout, descriptorSet);
-			commandBuffer.Dispatch(workers);
-		}
-		commandBuffer.End();
-
-		var queue = device.GetDeviceQueue(0);
-		queue.Submit(commandBuffer);
+		
+		var queue = _device.GetDeviceQueue(0);
+		queue.Submit(_commandBuffer);
 		queue.WaitIdle();
 
-		for (var index = 0; index < outputs.Length; index++) {
-			var output = outputs[index];
-			var memory = outputMemory[index];
-
-			output.Data = new byte[output.Size];
+		foreach (var output in outputs) {
+			var memory = _bindingMemoryMap[output.BindingIndex];
 			var data = memory.MapMemory();
+			output.Data = new byte[data.Length];
 			data.CopyTo(output.Data);
 			memory.UnmapMemory();
 		}
-
-		var disposables = new List<IDisposable>()
-			.Concat(outputBuffers)
-			.Concat(outputMemory)
-			.Concat(inputBuffers)
-			.Concat(inputMemory);
-		foreach (var disposable in disposables) disposable.Dispose();
 	}
 }

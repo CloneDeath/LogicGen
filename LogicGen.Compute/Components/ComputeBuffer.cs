@@ -15,6 +15,7 @@ public class ComputeBuffer : IDisposable {
 		_vk = vk;
 	}
 
+	#region IDisposable
 	~ComputeBuffer() {
 		FreeUnmanagedResources();
 	}
@@ -26,5 +27,10 @@ public class ComputeBuffer : IDisposable {
 
 	private void FreeUnmanagedResources() {
 		_vk.DestroyBuffer(_device, Buffer);
+	}
+	#endregion
+	
+	public void BindMemory(ComputeMemory memory) {
+		_vk.BindBufferMemory(_device, Buffer, memory.Memory, 0);
 	}
 }
