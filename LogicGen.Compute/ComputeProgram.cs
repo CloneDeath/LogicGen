@@ -13,7 +13,7 @@ public class ComputeProgram {
 		_code = code;
 		_entryPoint = entryPoint;
 	}
-	public byte[] Execute(byte[] input) {
+	public void Execute(InputData[] inputs, OutputData[] outputs) {
 		using var vk = Vk.GetApi();
 		var instance = vk.CreateInstance(new InstanceCreateInformation {
 			ApplicationInfo = new ApplicationInformation {
