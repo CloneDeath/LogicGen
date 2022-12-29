@@ -1,6 +1,3 @@
-using Silk.NET.Vulkan;
-using SilkNetConvenience.CreateInfo;
-
 namespace LogicGen.Compute; 
 
 public class ComputeProgram {
@@ -11,7 +8,7 @@ public class ComputeProgram {
 		_code = code;
 		_entryPoint = entryPoint;
 	}
-	public void Execute(InputData[] inputs, OutputData[] outputs) {
+	public void Execute(InputData[] inputs, OutputData[] outputs, GroupCount workers) {
 		using var device = new ComputeDevice();
 
 		var descriptorSets = new List<DescriptorSetInfo>();
@@ -60,44 +57,28 @@ public class ComputeProgram {
 		using var shaderModule = device.CreateShaderModule(_code);
 		using var computePipeline = device.CreateComputePipeline(pipelineLayout, shaderModule, _entryPoint);
 
-		var commandPool = vk.CreateCommandPool(device, new CommandPoolCreateInformation {
-			QueueFamilyIndex = queueFamilyIndex
-		});
+		using var commandPool = device.CreateCommandPool();
+		using var commandBuffer = commandPool.AllocateCommandBuffer();
+		commandBuffer.Begin();
+		{
+			commandBuffer.BindPipeline(computePipeline);
+			commandBuffer.BindDescriptorSet(pipelineLayout, descriptorSet);
+			commandBuffer.Dispatch(workers);
+		}
+		commandBuffer.End();
 
-		var commandBuffer = vk.AllocateCommandBuffers(device, new CommandBufferAllocateInformation {
-			CommandPool = commandPool,
-			CommandBufferCount = 1,
-			Level = CommandBufferLevel.Primary
-		}).First();
+		var queue = device.GetDeviceQueue(0);
+		queue.Submit(commandBuffer);
+		queue.WaitIdle();
 
-		vk.BeginCommandBuffer(commandBuffer, new CommandBufferBeginInfo {
-			SType = StructureType.CommandBufferBeginInfo,
-			Flags = CommandBufferUsageFlags.OneTimeSubmitBit
-		}).AssertSuccess();
-		
-		vk.CmdBindPipeline(commandBuffer, PipelineBindPoint.Compute, computePipeline);
-		vk.CmdBindDescriptorSets(commandBuffer, PipelineBindPoint.Compute, pipelineLayout, 0, 
-			new[] { descriptorSet }, Array.Empty<uint>());
-		vk.CmdDispatch(commandBuffer, (uint)input.Length, 1, 1);
-		
-		vk.EndCommandBuffer(commandBuffer).AssertSuccess();
+		for (var index = 0; index < outputs.Length; index++) {
+			var output = outputs[index];
+			var memory = outputMemory[index];
 
-		
-		var queue = vk.GetDeviceQueue(device, queueFamilyIndex, 0);
-		vk.QueueSubmit(queue, new SubmitInformation[] {
-			new() {
-				CommandBuffers = new[]{commandBuffer}
-			}
-		}, default);
-		
-		vk.QueueWaitIdle(queue).AssertSuccess();
-
-		var result = new byte[input.Length];
-		unsafe {
-			void* output;
-			vk.MapMemory(device, outputMemory, 0, (uint)result.Length, 0, &output);
-			new Span<byte>(output, result.Length).CopyTo(result);
-			vk.UnmapMemory(device, inputMemory);
+			output.Data = new byte[output.Size];
+			var data = memory.MapMemory();
+			data.CopyTo(output.Data);
+			memory.UnmapMemory();
 		}
 
 		var disposables = new List<IDisposable>()
@@ -105,9 +86,6 @@ public class ComputeProgram {
 			.Concat(outputMemory)
 			.Concat(inputBuffers)
 			.Concat(inputMemory);
-
 		foreach (var disposable in disposables) disposable.Dispose();
-
-		return result;
 	}
 }

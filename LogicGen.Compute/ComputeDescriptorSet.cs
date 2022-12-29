@@ -5,13 +5,13 @@ using SilkNetConvenience.CreateInfo;
 namespace LogicGen.Compute; 
 
 public class ComputeDescriptorSet : IDisposable {
-	private readonly DescriptorSet _descriptorSet;
+	public readonly DescriptorSet DescriptorSet;
 	private readonly DescriptorPool _pool;
 	private readonly Device _device;
 	private readonly Vk _vk;
 
 	public ComputeDescriptorSet(DescriptorSet descriptorSet, DescriptorPool pool, Device device, Vk vk) {
-		_descriptorSet = descriptorSet;
+		DescriptorSet = descriptorSet;
 		_pool = pool;
 		_device = device;
 		_vk = vk;
@@ -27,12 +27,12 @@ public class ComputeDescriptorSet : IDisposable {
 	}
 
 	private void ReleaseUnmanagedResources() {
-		_vk.FreeDescriptorSets(_device, _pool, new[] { _descriptorSet });
+		_vk.FreeDescriptorSets(_device, _pool, new[] { DescriptorSet });
 	}
 
 	public void UpdateDescriptorSets(IEnumerable<DescriptorSetInfo> descriptorSetInfos) {
 		var writeSets = descriptorSetInfos.Select(info => new WriteDescriptorSetInfo {
-			DstSet = _descriptorSet,
+			DstSet = DescriptorSet,
 			DstBinding = info.BindingIndex,
 			DescriptorCount = 1,
 			DescriptorType = DescriptorType.StorageBuffer,
