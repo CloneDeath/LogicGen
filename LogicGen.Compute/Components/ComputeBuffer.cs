@@ -2,7 +2,7 @@ using Silk.NET.Vulkan;
 using SilkNetConvenience;
 using Buffer = Silk.NET.Vulkan.Buffer;
 
-namespace LogicGen.Compute; 
+namespace LogicGen.Compute.Components; 
 
 public class ComputeBuffer : IDisposable {
 	public readonly Buffer Buffer;

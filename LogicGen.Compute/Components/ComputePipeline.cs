@@ -1,21 +1,21 @@
 using Silk.NET.Vulkan;
 using SilkNetConvenience;
 
-namespace LogicGen.Compute;
+namespace LogicGen.Compute.Components;
 
-public class ComputeShaderModule : IDisposable {
-	public readonly ShaderModule ShaderModule;
+public class ComputePipeline : IDisposable {
+	public readonly Pipeline Pipeline;
 	private readonly Device _device;
 	private readonly Vk _vk;
 
-	public ComputeShaderModule(ShaderModule shaderModule, Device device, Vk vk) {
-		ShaderModule = shaderModule;
+	public ComputePipeline(Pipeline pipeline, Device device, Vk vk) {
+		Pipeline = pipeline;
 		_device = device;
 		_vk = vk;
 	}
 
 	private void ReleaseUnmanagedResources() {
-		_vk.DestroyShaderModule(_device, ShaderModule);
+		_vk.DestroyPipeline(_device, Pipeline);
 	}
 
 	public void Dispose() {
@@ -23,7 +23,7 @@ public class ComputeShaderModule : IDisposable {
 		GC.SuppressFinalize(this);
 	}
 
-	~ComputeShaderModule() {
+	~ComputePipeline() {
 		ReleaseUnmanagedResources();
 	}
 }

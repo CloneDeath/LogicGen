@@ -1,12 +1,10 @@
 ﻿// https://content.wolfram.com/uploads/sites/13/2018/02/04-4-6.pdf
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using LogicGen.ByteOperations;
 using LogicGen.Genetics;
-using LogicGen.LogicGates;
 
 namespace LogicGen; 
 

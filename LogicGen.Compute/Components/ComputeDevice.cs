@@ -3,7 +3,7 @@ using SilkNetConvenience;
 using SilkNetConvenience.CreateInfo;
 using SilkNetConvenience.Exceptions;
 
-namespace LogicGen.Compute; 
+namespace LogicGen.Compute.Components; 
 
 public class ComputeDevice : IDisposable {
 	private readonly Vk _vk;

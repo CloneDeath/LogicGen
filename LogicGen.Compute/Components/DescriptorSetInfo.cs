@@ -1,4 +1,4 @@
-namespace LogicGen.Compute; 
+namespace LogicGen.Compute.Components; 
 
 public class DescriptorSetInfo {
 	public uint BindingIndex { get; }

@@ -19,7 +19,9 @@ public class CopyBitsTest {
 			BindingIndex = 1,
 			Size = input.Data.Length
 		};
-		program.Execute(new[] { input }, new[] { output }, new GroupCount(8 * (uint)input.Data.Length));
+		program.Execute(new IInputData[] { input }, 
+			new IOutputData[] { output }, 
+			new GroupCount(8 * (uint)input.Data.Length));
 		output.Data.Should().ContainInOrder(
 			1, 0, 0, 0, 
 			1, 0, 0, 0,

@@ -2,7 +2,7 @@ using Silk.NET.Vulkan;
 using SilkNetConvenience;
 using SilkNetConvenience.CreateInfo;
 
-namespace LogicGen.Compute; 
+namespace LogicGen.Compute.Components; 
 
 public class ComputeDescriptorSet : IDisposable {
 	public readonly DescriptorSet DescriptorSet;

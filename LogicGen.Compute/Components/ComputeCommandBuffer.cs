@@ -1,7 +1,7 @@
 using Silk.NET.Vulkan;
 using SilkNetConvenience.Exceptions;
 
-namespace LogicGen.Compute;
+namespace LogicGen.Compute.Components;
 
 public class ComputeCommandBuffer : IDisposable {
 	public readonly CommandBuffer CommandBuffer;

@@ -1,7 +1,7 @@
 using Silk.NET.Vulkan;
 using SilkNetConvenience;
 
-namespace LogicGen.Compute;
+namespace LogicGen.Compute.Components;
 
 public class ComputeMemory : IDisposable {
 	public DeviceMemory Memory { get; }

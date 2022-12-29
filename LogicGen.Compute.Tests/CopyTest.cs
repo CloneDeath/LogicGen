@@ -16,7 +16,9 @@ public class CopyTest {
 			BindingIndex = 1,
 			Size = input.Data.Length
 		};
-		program.Execute(new[] { input }, new[] { output }, new GroupCount((uint)input.Data.Length));
+		program.Execute(new IInputData[] { input }, 
+			new IOutputData[] { output }, 
+			new GroupCount((uint)input.Data.Length));
 		output.Data.Should().ContainInOrder(1, 2, 3, 4, 5);
 	}
 }

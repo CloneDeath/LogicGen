@@ -1,7 +1,7 @@
 using Silk.NET.Vulkan;
 using SilkNetConvenience;
 
-namespace LogicGen.Compute; 
+namespace LogicGen.Compute.Components; 
 
 public class ComputeDescriptorSetLayout : IDisposable {
 	public DescriptorSetLayout Layout { get; }

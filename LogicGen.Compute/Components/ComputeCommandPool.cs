@@ -2,7 +2,7 @@ using Silk.NET.Vulkan;
 using SilkNetConvenience;
 using SilkNetConvenience.CreateInfo;
 
-namespace LogicGen.Compute;
+namespace LogicGen.Compute.Components;
 
 public class ComputeCommandPool : IDisposable {
 	private readonly CommandPool _commandPool;

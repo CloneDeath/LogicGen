@@ -1,3 +1,5 @@
+using LogicGen.Compute.Components;
+
 namespace LogicGen.Compute; 
 
 public class ComputeProgram {
@@ -8,7 +10,7 @@ public class ComputeProgram {
 		_code = code;
 		_entryPoint = entryPoint;
 	}
-	public void Execute(InputData[] inputs, OutputData[] outputs, GroupCount workers) {
+	public void Execute(IInputData[] inputs, IOutputData[] outputs, GroupCount workers) {
 		using var device = new ComputeDevice();
 
 		var descriptorSets = new List<DescriptorSetInfo>();
