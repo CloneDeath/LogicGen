@@ -1,4 +1,4 @@
-namespace LogicGen.Compute.Shaders;
+namespace LogicGen.Compute.ProgramCreation.Shaders;
 
 public interface IBufferDescription {
 	public uint BindingIndex { get; }

@@ -1,4 +1,4 @@
-namespace LogicGen.Compute; 
+namespace LogicGen.Compute.ProgramCreation.Shaders; 
 
 public class GroupCount {
 	public GroupCount(uint x = 1, uint y = 1, uint z = 1) {

@@ -1,4 +1,4 @@
-namespace LogicGen.Compute; 
+namespace LogicGen.Compute.ProgramCreation; 
 
 public class ComputeBuffer {
 	public ulong Size { get; }

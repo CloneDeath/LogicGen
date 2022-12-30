@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using LogicGen.Compute.DataTypes;
-using LogicGen.Compute.Shaders;
+using LogicGen.Compute.ProgramCreation.Shaders;
 
 namespace LogicGen.Compute.Tests; 
 

@@ -1,5 +1,5 @@
 using System.IO;
-using LogicGen.Compute.Shaders;
+using LogicGen.Compute.ProgramCreation.Shaders;
 
 namespace LogicGen.Compute.Tests.Chaining; 
 

@@ -1,6 +1,6 @@
 using System.IO;
 using FluentAssertions;
-using LogicGen.Compute.Shaders;
+using LogicGen.Compute.ProgramCreation.Shaders;
 
 namespace LogicGen.Compute.Tests;
 

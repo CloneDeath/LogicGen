@@ -1,3 +1,5 @@
+using LogicGen.Compute.ProgramCreation;
+
 namespace LogicGen.Compute.Tests.Chaining; 
 
 public class ChainingTest {

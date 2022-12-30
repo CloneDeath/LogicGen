@@ -1,6 +1,6 @@
-using LogicGen.Compute.Shaders;
+using LogicGen.Compute.ProgramCreation.Shaders;
 
-namespace LogicGen.Compute;
+namespace LogicGen.Compute.ProgramCreation;
 
 public interface IStage {
 	public IShaderData Shader { get; }

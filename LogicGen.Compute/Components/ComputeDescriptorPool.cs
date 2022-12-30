@@ -9,7 +9,7 @@ public class ComputeDescriptorPool : IDisposable {
 	private readonly Device _device;
 	private readonly Vk _vk;
 
-	public ComputeDescriptorPool(uint descriptorCount, Device device, Vk vk) {
+	public ComputeDescriptorPool(uint maxSets, uint descriptorCount, Device device, Vk vk) {
 		_descriptorPool = vk.CreateDescriptorPool(device, new DescriptorPoolCreateInformation {
 			PoolSizes = new [] {
 				new DescriptorPoolSize {
@@ -17,7 +17,7 @@ public class ComputeDescriptorPool : IDisposable {
 					DescriptorCount = descriptorCount
 				}
 			},
-			MaxSets = 1,
+			MaxSets = maxSets,
 			Flags = DescriptorPoolCreateFlags.FreeDescriptorSetBit
 		});
 		

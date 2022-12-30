@@ -1,13 +1,15 @@
 using LogicGen.Compute.Components;
-using LogicGen.Compute.Shaders;
+using LogicGen.Compute.Managers;
+using LogicGen.Compute.ProgramCreation;
 using SilkNetConvenience.Wrappers;
 
 namespace LogicGen.Compute; 
 
 public class ComputeProgram : IDisposable {
 	private readonly ComputeDevice _device;
+	private readonly DescriptorManager _descriptorManager;
+	private readonly BufferManager _bufferManager;
 	
-	private readonly ComputeDescriptorPool _descriptorPool;
 	private readonly ComputeDescriptorSetLayout _descriptorSetLayout;
 	private readonly List<VulkanDeviceMemory> _memory = new();
 	private readonly List<VulkanBuffer> _buffers = new();
@@ -19,9 +21,16 @@ public class ComputeProgram : IDisposable {
 
 	private readonly Dictionary<uint, VulkanDeviceMemory> _bindingMemoryMap = new();
 
-	public ComputeProgram(IStage stages) {
+	public ComputeProgram(IStage[] stages) {
 		_device = new ComputeDevice();
 
+		var buffers = stages.SelectMany(s => s.Bindings.Select(b => b.Buffer));
+		_bufferManager = new BufferManager();
+
+		var descriptorSetCount = stages.Length;
+		var storageBufferDescriptorCount = stages.Sum(s => s.Bindings.Length);
+		_descriptorManager = new DescriptorManager(_device, (uint)descriptorSetCount, (uint)storageBufferDescriptorCount);
+		
 		var descriptorSets = new List<DescriptorSetInfo>();
 		foreach (var dataDescription in shaderData.Buffers) {
 			var memory = _device.AllocateMemory(dataDescription.Size);
@@ -35,8 +44,6 @@ public class ComputeProgram : IDisposable {
 			descriptorSets.Add(new DescriptorSetInfo(dataDescription.BindingIndex, buffer));
 		}
 
-		_descriptorPool = _device.CreateDescriptorPool((uint)shaderData.Buffers.Length);
-		
 		var bindingIndices = shaderData.Buffers.Select(d => d.BindingIndex).ToArray();
 		_descriptorSetLayout = _device.CreateDescriptorSetLayout(bindingIndices);
 		
@@ -72,7 +79,8 @@ public class ComputeProgram : IDisposable {
 		foreach (var disposable in disposables) disposable.Dispose();
 		
 		_descriptorSetLayout.Dispose();
-		_descriptorPool.Dispose();
+		_descriptorManager.Dispose();
+		_bufferManager.Dispose();
 		_device.Dispose();
 		GC.SuppressFinalize(this);
 	}

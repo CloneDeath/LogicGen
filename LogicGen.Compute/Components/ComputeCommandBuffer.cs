@@ -1,3 +1,4 @@
+using LogicGen.Compute.ProgramCreation.Shaders;
 using Silk.NET.Vulkan;
 using SilkNetConvenience.Exceptions;
 

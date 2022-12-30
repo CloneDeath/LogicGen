@@ -111,19 +111,18 @@ public class ComputeDevice : IDisposable {
 		return new ComputeShaderModule(shaderModule, _device, _vk);
 	}
 
-	public ComputeDescriptorPool CreateDescriptorPool(uint descriptorCount) {
-		return new ComputeDescriptorPool(descriptorCount, _device, _vk);
+	public ComputeDescriptorPool CreateDescriptorPool(uint maxSets, uint descriptorCount) {
+		return new ComputeDescriptorPool(maxSets, descriptorCount, _device, _vk);
 	}
 
 	public ComputeDescriptorSetLayout CreateDescriptorSetLayout(IEnumerable<uint> bindingIndices) {
-		var bindings = bindingIndices.Select(i => new DescriptorSetLayoutBindingInformation {
-			Binding = i,
-			DescriptorType = DescriptorType.StorageBuffer,
-			DescriptorCount = 1,
-			StageFlags = ShaderStageFlags.ComputeBit
-		}).ToArray();
 		var layout = _vk.CreateDescriptorSetLayout(_device, new DescriptorSetLayoutCreateInformation {
-			Bindings = bindings
+			Bindings = bindingIndices.Select(i => new DescriptorSetLayoutBindingInformation {
+				Binding = i,
+				DescriptorType = DescriptorType.StorageBuffer,
+				DescriptorCount = 1,
+				StageFlags = ShaderStageFlags.ComputeBit
+			}).ToArray()
 		});
 		return new ComputeDescriptorSetLayout(layout, _device, _vk);
 	}
