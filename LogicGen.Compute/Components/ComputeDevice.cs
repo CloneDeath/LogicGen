@@ -72,11 +72,11 @@ public class ComputeDevice : IDisposable {
 		return null;
 	}
 
-	public VulkanMemory AllocateMemory(ulong size) {
+	public VulkanDeviceMemory AllocateMemory(ulong size) {
 		var memoryTypeIndex = GetMemoryTypeIndex(size) 
 		                      ?? throw new Exception("Could not find a suitable memory type");
 
-		return new VulkanMemory((uint)memoryTypeIndex, size, _device, _vk);
+		return new VulkanDeviceMemory((uint)memoryTypeIndex, size, _device, _vk);
 	}
 
 	private int? GetMemoryTypeIndex(ulong memorySize) {
@@ -95,14 +95,13 @@ public class ComputeDevice : IDisposable {
 		return null;
 	}
 
-	public ComputeBuffer CreateBuffer(VulkanMemory memory) {
-		var buffer = _vk.CreateBuffer(_device, new BufferCreateInformation {
+	public VulkanBuffer CreateBuffer(VulkanDeviceMemory deviceMemory) {
+		return new VulkanBuffer(new BufferCreateInformation {
 			Usage = BufferUsageFlags.StorageBufferBit,
 			SharingMode = SharingMode.Exclusive,
 			QueueFamilyIndices = new[] { _queueFamilyIndex },
-			Size = memory.Size
-		});
-		return new ComputeBuffer(buffer, _device, _vk);
+			Size = deviceMemory.Size
+		}, _device, _vk);
 	}
 
 	public ComputeShaderModule CreateShaderModule(byte[] code) {
