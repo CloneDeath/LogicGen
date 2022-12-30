@@ -5,18 +5,23 @@ using SilkNetConvenience.Wrappers;
 namespace LogicGen.Compute.Managers; 
 
 public class ComputeBufferInstance : IDisposable {
-	private readonly VulkanDeviceMemory _memory;
-	private readonly VulkanBuffer _buffer;
+	public Guid BufferIdentifier => _reference.Identifier;
+	
+	private readonly ComputeBuffer _reference;
+	public readonly VulkanDeviceMemory Memory;
+	public readonly VulkanBuffer Buffer;
+	
 	public ComputeBufferInstance(ComputeBuffer reference, ComputeDevice device) {
-		_memory = device.AllocateMemory(reference.Size);
-		_buffer = device.CreateBuffer(reference.Size);
-		_buffer.BindMemory(_memory);
+		_reference = reference;
+		Memory = device.AllocateMemory(reference.Size);
+		Buffer = device.CreateBuffer(reference.Size);
+		Buffer.BindMemory(Memory);
 	}
 
 	#region IDisposable
 	private void ReleaseUnmanagedResources() {
-		_buffer.Dispose();
-		_memory.Dispose();
+		Buffer.Dispose();
+		Memory.Dispose();
 	}
 
 	public void Dispose() {

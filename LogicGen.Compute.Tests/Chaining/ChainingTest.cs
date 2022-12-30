@@ -1,3 +1,4 @@
+using FluentAssertions;
 using LogicGen.Compute.ProgramCreation;
 
 namespace LogicGen.Compute.Tests.Chaining; 
@@ -29,8 +30,8 @@ public class ChainingTest {
 
 		program.Upload(a, new[] { 1, 2, 3, 4, 5 });
 		program.Execute();
-		var results = program.Download(c);
+		var results = program.DownloadArray<int>(c);
 
-		results.Should().ContainInOrder(new[] { 4, 6, 8, 10, 12 });
+		results.Should().ContainInOrder(4, 6, 8, 10, 12);
 	}
 }

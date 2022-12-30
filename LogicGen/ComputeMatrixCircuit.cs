@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LogicGen.Compute;
-using LogicGen.Compute.DataTypes;
+using LogicGen.Compute.ProgramCreation;
 using LogicGen.Compute.ProgramCreation.Shaders;
 
 namespace LogicGen; 
@@ -14,7 +14,8 @@ public class ComputeMatrixCircuit : ICircuit {
 	private readonly Matrix _data;
 	
 	private readonly ComputeProgram _program;
-	private readonly InputData _circuitData;
+	private readonly ComputeBuffer _inputBuffer;
+	private readonly ComputeBuffer _outputBuffer;
 
 	public ComputeMatrixCircuit(int inputCount, int outputCount, Matrix data) {
 		_inputCount = inputCount;
@@ -27,42 +28,51 @@ public class ComputeMatrixCircuit : ICircuit {
 				boolCircuit[x + (y * data.Size)] = data[x, y] != 0;
 			}
 		}
-		_circuitData = new InputData {
-			BindingIndex = 0,
-			Data = new List<byte>()
-				.Concat(BitConverter.GetBytes(data.Size))
-				.Concat(boolCircuit.Select(v => v ? 1 : 0).SelectMany(BitConverter.GetBytes))
-				.ToArray()
-		};
-		
+
+		var circuitData = new List<byte>()
+			.Concat(BitConverter.GetBytes(data.Size))
+			.Concat(boolCircuit.Select(v => v ? 1 : 0).SelectMany(BitConverter.GetBytes))
+			.ToArray();
+		var inputOutputSize = (uint)_data.Size * sizeof(int);
 		var shader = new ShaderData {
 			Code = File.ReadAllBytes("Shader/circuit.spv"),
 			EntryPoint = "main",
 			Buffers = new IBufferDescription[] { 
-				new BufferDescription(0, (uint)_circuitData.Data.Length) ,
-				new BufferDescription(1, (uint)_data.Size * sizeof(int)),
-				new BufferDescription(2, (uint)_data.Size * sizeof(int))
+				new BufferDescription(0, (uint)circuitData.Length) ,
+				new BufferDescription(1, inputOutputSize),
+				new BufferDescription(2, inputOutputSize)
 			},
 			Workers = new GroupCount((uint)_inputCount)
 		};
-		_program = new ComputeProgram(shader);
+		var circuitBuffer = new ComputeBuffer(circuitData.Length);
+		_inputBuffer = new ComputeBuffer(inputOutputSize);
+		_outputBuffer = new ComputeBuffer(inputOutputSize);
+		_program = new ComputeProgram(new IStage[] {
+			new Stage(shader) {
+				Bindings = new [] {
+					new BufferBinding(0, circuitBuffer),
+					new BufferBinding(1, _inputBuffer),
+					new BufferBinding(2, _outputBuffer)
+				}
+			}
+		});
+		_program.Upload(circuitBuffer, circuitData);
 	}
 
 	public bool[] Execute(params bool[] inputs) {
 		if (_inputCount != inputs.Length) throw new NotImplementedException();
 		
-		var output = new BinaryOutputData(2, _data.Size);
 		for (var circuitIteration = 0; circuitIteration < _data.Size; circuitIteration++) {
-			var inputsData = output.BinaryData.ToArray();
+			var inputData = _program.DownloadArray<int>(_outputBuffer).Select(v => v != 0).ToArray();
 			for (var inputIndex = 0; inputIndex < _inputCount; inputIndex++) {
-				inputsData[inputIndex] = inputs[inputIndex];
+				inputData[inputIndex] = inputs[inputIndex];
 			}
-			var input = new BinaryInputData(1, inputsData);
-			_program.Execute(new IInputData[] { _circuitData, input }, 
-				new IOutputData[] { output });
-		}
 
-		return output.BinaryData.TakeLast(_outputCount).ToArray();
+			_program.Upload(_inputBuffer, inputData.Select(v => v ? 1 : 0).ToArray());
+			_program.Execute();
+		}
+		var finalOutput = _program.DownloadArray<int>(_outputBuffer).Select(v => v != 0).ToArray();
+		return finalOutput.TakeLast(_outputCount).ToArray();
 	}
 
 }

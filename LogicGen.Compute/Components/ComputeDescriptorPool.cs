@@ -25,6 +25,7 @@ public class ComputeDescriptorPool : IDisposable {
 		_vk = vk;
 	}
 
+	#region IDisposable
 	~ComputeDescriptorPool() {
 		FreeUnmanagedResources();
 	}
@@ -37,6 +38,7 @@ public class ComputeDescriptorPool : IDisposable {
 	private void FreeUnmanagedResources() {
 		_vk.DestroyDescriptorPool(_device, _descriptorPool);
 	}
+	#endregion
 
 	public ComputeDescriptorSet AllocateDescriptorSet(ComputeDescriptorSetLayout descriptorSetLayout) {
 		var descriptorSet = _vk.AllocateDescriptorSets(_device, new DescriptorSetAllocateInformation {

@@ -26,4 +26,8 @@ public class BufferManager : IDisposable {
 		ReleaseUnmanagedResources();
 	}
 	#endregion
+
+	public ComputeBufferInstance GetBufferInstance(ComputeBuffer buffer) {
+		return _instances.First(i => i.BufferIdentifier == buffer.Identifier);
+	}
 }

@@ -6,6 +6,7 @@ public interface IBufferDescription {
 }
 
 public class BufferDescription : IBufferDescription {
+	public BufferDescription(uint bindingIndex, int size) : this(bindingIndex, (ulong)size){}
 	public BufferDescription(uint bindingIndex, ulong size) {
 		BindingIndex = bindingIndex;
 		Size = size;
