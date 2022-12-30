@@ -2,6 +2,7 @@ using Silk.NET.Vulkan;
 using SilkNetConvenience;
 using SilkNetConvenience.CreateInfo;
 using SilkNetConvenience.Exceptions;
+using SilkNetConvenience.Wrappers;
 
 namespace LogicGen.Compute.Components; 
 
@@ -71,18 +72,14 @@ public class ComputeDevice : IDisposable {
 		return null;
 	}
 
-	public ComputeMemory AllocateMemory(uint size) {
+	public VulkanMemory AllocateMemory(ulong size) {
 		var memoryTypeIndex = GetMemoryTypeIndex(size) 
 		                      ?? throw new Exception("Could not find a suitable memory type");
 
-		var memory = _vk.AllocateMemory(_device, new MemoryAllocateInformation {
-			AllocationSize = size,
-			MemoryTypeIndex = (uint)memoryTypeIndex
-		});
-		return new ComputeMemory(memory, size, _device, _vk);
+		return new VulkanMemory((uint)memoryTypeIndex, size, _device, _vk);
 	}
 
-	private int? GetMemoryTypeIndex(uint memorySize) {
+	private int? GetMemoryTypeIndex(ulong memorySize) {
 		var memoryProperties = _vk.GetPhysicalDeviceMemoryProperties(_physicalDevice);
 		for (var index = 0; index < memoryProperties.MemoryTypeCount; index++) {
 			var memoryType = memoryProperties.MemoryTypes[index];
@@ -98,7 +95,7 @@ public class ComputeDevice : IDisposable {
 		return null;
 	}
 
-	public ComputeBuffer CreateBuffer(ComputeMemory memory) {
+	public ComputeBuffer CreateBuffer(VulkanMemory memory) {
 		var buffer = _vk.CreateBuffer(_device, new BufferCreateInformation {
 			Usage = BufferUsageFlags.StorageBufferBit,
 			SharingMode = SharingMode.Exclusive,

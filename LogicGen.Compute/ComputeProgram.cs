@@ -1,5 +1,6 @@
 using LogicGen.Compute.Components;
 using LogicGen.Compute.Shaders;
+using SilkNetConvenience.Wrappers;
 
 namespace LogicGen.Compute; 
 
@@ -8,7 +9,7 @@ public class ComputeProgram : IDisposable {
 	
 	private readonly ComputeDescriptorPool _descriptorPool;
 	private readonly ComputeDescriptorSetLayout _descriptorSetLayout;
-	private readonly List<ComputeMemory> _memory = new();
+	private readonly List<VulkanMemory> _memory = new();
 	private readonly List<ComputeBuffer> _buffers = new();
 	private readonly ComputeDescriptorSet _descriptorSet;
 	private readonly ComputeShaderModule _shaderModule;
@@ -16,7 +17,7 @@ public class ComputeProgram : IDisposable {
 	private readonly ComputeCommandPool _commandPool;
 	private readonly ComputeCommandBuffer _commandBuffer;
 
-	private readonly Dictionary<uint, ComputeMemory> _bindingMemoryMap = new();
+	private readonly Dictionary<uint, VulkanMemory> _bindingMemoryMap = new();
 
 	public ComputeProgram(IShaderData shaderData, GroupCount workers) {
 		_device = new ComputeDevice();

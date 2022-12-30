@@ -1,5 +1,6 @@
 using Silk.NET.Vulkan;
 using SilkNetConvenience;
+using SilkNetConvenience.Wrappers;
 using Buffer = Silk.NET.Vulkan.Buffer;
 
 namespace LogicGen.Compute.Components; 
@@ -30,7 +31,7 @@ public class ComputeBuffer : IDisposable {
 	}
 	#endregion
 	
-	public void BindMemory(ComputeMemory memory) {
+	public void BindMemory(VulkanMemory memory) {
 		_vk.BindBufferMemory(_device, Buffer, memory.Memory, 0);
 	}
 }
