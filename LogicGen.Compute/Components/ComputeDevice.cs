@@ -1,7 +1,6 @@
 using Silk.NET.Vulkan;
 using SilkNetConvenience;
 using SilkNetConvenience.CreateInfo;
-using SilkNetConvenience.Exceptions;
 using SilkNetConvenience.Wrappers;
 
 namespace LogicGen.Compute.Components; 
@@ -95,12 +94,12 @@ public class ComputeDevice : IDisposable {
 		return null;
 	}
 
-	public VulkanBuffer CreateBuffer(VulkanDeviceMemory deviceMemory) {
+	public VulkanBuffer CreateBuffer(ulong size) {
 		return new VulkanBuffer(new BufferCreateInformation {
 			Usage = BufferUsageFlags.StorageBufferBit,
 			SharingMode = SharingMode.Exclusive,
 			QueueFamilyIndices = new[] { _queueFamilyIndex },
-			Size = deviceMemory.Size
+			Size = size
 		}, _device, _vk);
 	}
 
@@ -158,27 +157,5 @@ public class ComputeDevice : IDisposable {
 	public ComputeQueue GetDeviceQueue(uint index) {
 		var queue = _vk.GetDeviceQueue(_device, _queueFamilyIndex, index);
 		return new ComputeQueue(queue, _vk);
-	}
-}
-
-public class ComputeQueue {
-	private readonly Queue _queue;
-	private readonly Vk _vk;
-
-	public ComputeQueue(Queue queue, Vk vk) {
-		_queue = queue;
-		_vk = vk;
-	}
-
-	public void Submit(ComputeCommandBuffer commandBuffer) {
-		_vk.QueueSubmit(_queue, new SubmitInformation[] {
-			new() {
-				CommandBuffers = new[]{commandBuffer.CommandBuffer}
-			}
-		}, default);
-	}
-
-	public void WaitIdle() {
-		_vk.QueueWaitIdle(_queue).AssertSuccess();
 	}
 }
