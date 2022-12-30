@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Update="Shader\*.spv">
+        <None Update="**\*.spv">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

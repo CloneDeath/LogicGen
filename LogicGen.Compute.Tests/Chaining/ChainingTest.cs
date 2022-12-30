@@ -26,7 +26,7 @@ public class ChainingTest {
 				}
 			}
 		};
-		var program = new ComputeProgram(stages);
+		using var program = new ComputeProgram(stages);
 
 		program.Upload(a, new[] { 1, 2, 3, 4, 5 });
 		program.Execute();
