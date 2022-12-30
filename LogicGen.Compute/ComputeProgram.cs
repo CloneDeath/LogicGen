@@ -1,6 +1,7 @@
 using LogicGen.Compute.Components;
 using LogicGen.Compute.Managers;
 using LogicGen.Compute.ProgramCreation;
+using SilkNetConvenience.Wrappers;
 
 namespace LogicGen.Compute; 
 
@@ -10,7 +11,7 @@ public class ComputeProgram : IDisposable {
 	private readonly BufferManager _bufferManager;
 	
 	private readonly ComputeDescriptorSet _descriptorSet;
-	private readonly ComputeShaderModule _shaderModule;
+	private readonly VulkanShaderModule _shaderModule;
 	private readonly ComputePipeline _computePipeline;
 	private readonly ComputeCommandPool _commandPool;
 	private readonly ComputeCommandBuffer _commandBuffer;

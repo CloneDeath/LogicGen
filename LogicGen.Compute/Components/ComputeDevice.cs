@@ -104,19 +104,14 @@ public class ComputeDevice : IDisposable {
 		});
 	}
 
-	public ComputeShaderModule CreateShaderModule(byte[] code) {
-		var shaderModule = _vk.CreateShaderModule(_device, new ShaderModuleCreateInformation {
-			Code = code
-		});
-		return new ComputeShaderModule(shaderModule, _device, _vk);
-	}
+	public VulkanShaderModule CreateShaderModule(byte[] code) => _device.CreateShaderModule(code);
 
 	public ComputeDescriptorPool CreateDescriptorPool(uint maxSets, uint descriptorCount) {
-		return new ComputeDescriptorPool(maxSets, descriptorCount, _device, _vk);
+		return new ComputeDescriptorPool(maxSets, descriptorCount, _device.Device, _vk);
 	}
 
 	public ComputeDescriptorSetLayout CreateDescriptorSetLayout(IEnumerable<uint> bindingIndices) {
-		var layout = _vk.CreateDescriptorSetLayout(_device, new DescriptorSetLayoutCreateInformation {
+		var layout = _vk.CreateDescriptorSetLayout(_device.Device, new DescriptorSetLayoutCreateInformation {
 			Bindings = bindingIndices.Select(i => new DescriptorSetLayoutBindingInformation {
 				Binding = i,
 				DescriptorType = DescriptorType.StorageBuffer,
@@ -124,20 +119,20 @@ public class ComputeDevice : IDisposable {
 				StageFlags = ShaderStageFlags.ComputeBit
 			}).ToArray()
 		});
-		return new ComputeDescriptorSetLayout(layout, _device, _vk);
+		return new ComputeDescriptorSetLayout(layout, _device.Device, _vk);
 	}
 
 	public ComputePipelineLayout CreatePipelineLayout(ComputeDescriptorSetLayout descriptorSetLayout) {
-		var layout = _vk.CreatePipelineLayout(_device, new PipelineLayoutCreateInformation {
+		var layout = _vk.CreatePipelineLayout(_device.Device, new PipelineLayoutCreateInformation {
 			SetLayouts = new [] {
 				descriptorSetLayout.Layout
 			}
 		});
-		return new ComputePipelineLayout(layout, _device, _vk);
+		return new ComputePipelineLayout(layout, _device.Device, _vk);
 	}
 
-	public ComputePipeline CreateComputePipeline(ComputePipelineLayout pipelineLayout, ComputeShaderModule shaderModule, string entryPoint) {
-		var computePipeline = _vk.CreateComputePipeline(_device, default, new ComputePipelineCreateInformation {
+	public ComputePipeline CreateComputePipeline(ComputePipelineLayout pipelineLayout, VulkanShaderModule shaderModule, string entryPoint) {
+		var computePipeline = _vk.CreateComputePipeline(_device.Device, default, new ComputePipelineCreateInformation {
 			Layout = pipelineLayout.PipelineLayout,
 			Stage = new PipelineShaderStateCreateInformation {
 				Stage = ShaderStageFlags.ComputeBit,
@@ -145,18 +140,18 @@ public class ComputeDevice : IDisposable {
 				Name = entryPoint
 			}
 		});
-		return new ComputePipeline(computePipeline, _device, _vk);
+		return new ComputePipeline(computePipeline, _device.Device, _vk);
 	}
 
 	public ComputeCommandPool CreateCommandPool() {
-		var commandPool = _vk.CreateCommandPool(_device, new CommandPoolCreateInformation {
+		var commandPool = _vk.CreateCommandPool(_device.Device, new CommandPoolCreateInformation {
 			QueueFamilyIndex = _queueFamilyIndex
 		});
-		return new ComputeCommandPool(commandPool, _device, _vk);
+		return new ComputeCommandPool(commandPool, _device.Device, _vk);
 	}
 
 	public ComputeQueue GetDeviceQueue(uint index) {
-		var queue = _vk.GetDeviceQueue(_device, _queueFamilyIndex, index);
+		var queue = _vk.GetDeviceQueue(_device.Device, _queueFamilyIndex, index);
 		return new ComputeQueue(queue, _vk);
 	}
 }
