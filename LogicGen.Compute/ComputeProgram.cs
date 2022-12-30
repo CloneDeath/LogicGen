@@ -19,7 +19,7 @@ public class ComputeProgram : IDisposable {
 
 	private readonly Dictionary<uint, VulkanDeviceMemory> _bindingMemoryMap = new();
 
-	public ComputeProgram(IShaderData shaderData) {
+	public ComputeProgram(IStage stages) {
 		_device = new ComputeDevice();
 
 		var descriptorSets = new List<DescriptorSetInfo>();

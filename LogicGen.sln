@@ -10,6 +10,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilkNetConvenience.Vulkan",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicGen.Compute.Tests", "LogicGen.Compute.Tests\LogicGen.Compute.Tests.csproj", "{66949527-F86C-42BA-8DF6-82B34031B281}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{90DECAF2-FB00-4AF5-9F20-FD8C3E1D207F}"
+	ProjectSection(SolutionItems) = preProject
+		compile_shaders.sh = compile_shaders.sh
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
