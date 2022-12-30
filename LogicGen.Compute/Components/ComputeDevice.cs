@@ -10,7 +10,7 @@ public class ComputeDevice : IDisposable {
 	private readonly Instance _instance;
 	private readonly PhysicalDevice _physicalDevice;
 	private readonly uint _queueFamilyIndex;
-	private readonly Device _device;
+	private readonly VulkanDevice _device;
 
 	public ComputeDevice() {
 		_vk = Vk.GetApi();
@@ -26,14 +26,21 @@ public class ComputeDevice : IDisposable {
 		var physicalDevices = _vk.EnumeratePhysicalDevices(_instance);
 		_physicalDevice = PickPhysicalDevice(_vk, physicalDevices);
 		_queueFamilyIndex = GetComputeQueueFamilyIndex(_vk, _physicalDevice) ?? throw new Exception("Failed to find a queue family");
-		_device = _vk.CreateDevice(_physicalDevice, new DeviceCreateInformation {
+		_device = new VulkanDevice(_physicalDevice, new DeviceCreateInformation {
 			QueueCreateInfos = new [] {
 				new DeviceQueueCreateInformation {
 					QueueFamilyIndex = _queueFamilyIndex,
 					QueuePriorities = new[]{1f}
 				}
 			}
-		});
+		}, _vk);
+	}
+
+	#region IDisposable
+	private void FreeUnmanagedResources() {
+		_device.Dispose();
+		_vk.DestroyInstance(_instance);
+		_vk.Dispose();
 	}
 
 	~ComputeDevice() {
@@ -44,12 +51,7 @@ public class ComputeDevice : IDisposable {
 		FreeUnmanagedResources();
 		GC.SuppressFinalize(this);
 	}
-
-	private void FreeUnmanagedResources() {
-		_vk.DestroyDevice(_device);
-		_vk.DestroyInstance(_instance);
-		_vk.Dispose();
-	}
+	#endregion
 
 	private static PhysicalDevice PickPhysicalDevice(Vk vk, IEnumerable<PhysicalDevice> physicalDevices) {
 		foreach (var physicalDevice in physicalDevices) {
@@ -74,8 +76,7 @@ public class ComputeDevice : IDisposable {
 	public VulkanDeviceMemory AllocateMemory(ulong size) {
 		var memoryTypeIndex = GetMemoryTypeIndex(size) 
 		                      ?? throw new Exception("Could not find a suitable memory type");
-
-		return new VulkanDeviceMemory((uint)memoryTypeIndex, size, _device, _vk);
+		return _device.AllocateMemory((uint)memoryTypeIndex, size);
 	}
 
 	private int? GetMemoryTypeIndex(ulong memorySize) {
@@ -95,12 +96,12 @@ public class ComputeDevice : IDisposable {
 	}
 
 	public VulkanBuffer CreateBuffer(ulong size) {
-		return new VulkanBuffer(new BufferCreateInformation {
+		return _device.CreateBuffer(new BufferCreateInformation {
 			Usage = BufferUsageFlags.StorageBufferBit,
 			SharingMode = SharingMode.Exclusive,
 			QueueFamilyIndices = new[] { _queueFamilyIndex },
 			Size = size
-		}, _device, _vk);
+		});
 	}
 
 	public ComputeShaderModule CreateShaderModule(byte[] code) {
