@@ -1,4 +1,5 @@
 using LogicGen.Compute.Components;
+using LogicGen.Compute.Shaders;
 
 namespace LogicGen.Compute; 
 
@@ -17,11 +18,11 @@ public class ComputeProgram : IDisposable {
 
 	private readonly Dictionary<uint, ComputeMemory> _bindingMemoryMap = new();
 
-	public ComputeProgram(IShaderData shaderData, GroupCount workers, params IDataDescription[] dataDescriptions) {
+	public ComputeProgram(IShaderData shaderData, GroupCount workers) {
 		_device = new ComputeDevice();
 
 		var descriptorSets = new List<DescriptorSetInfo>();
-		foreach (var dataDescription in dataDescriptions) {
+		foreach (var dataDescription in shaderData.Buffers) {
 			var memory = _device.AllocateMemory(dataDescription.Size);
 			_memory.Add(memory);
 			_bindingMemoryMap[dataDescription.BindingIndex] = memory;
@@ -33,9 +34,9 @@ public class ComputeProgram : IDisposable {
 			descriptorSets.Add(new DescriptorSetInfo(dataDescription.BindingIndex, buffer));
 		}
 
-		_descriptorPool = _device.CreateDescriptorPool((uint)dataDescriptions.Length);
+		_descriptorPool = _device.CreateDescriptorPool((uint)shaderData.Buffers.Length);
 		
-		var bindingIndices = dataDescriptions.Select(d => d.BindingIndex).ToArray();
+		var bindingIndices = shaderData.Buffers.Select(d => d.BindingIndex).ToArray();
 		_descriptorSetLayout = _device.CreateDescriptorSetLayout(bindingIndices);
 		
 		_descriptorSet = _descriptorPool.AllocateDescriptorSet(_descriptorSetLayout);

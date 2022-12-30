@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using LogicGen.Compute;
 using LogicGen.Compute.DataTypes;
+using LogicGen.Compute.Shaders;
 
 namespace LogicGen; 
 
@@ -36,12 +37,14 @@ public class ComputeMatrixCircuit : ICircuit {
 		
 		var shader = new ShaderData {
 			Code = File.ReadAllBytes("Shader/circuit.spv"),
-			EntryPoint = "main"
+			EntryPoint = "main",
+			Buffers = new IBufferDescription[] { 
+				new BufferDescription(0, (uint)_circuitData.Data.Length) ,
+				new BufferDescription(1, (uint)_data.Size * sizeof(int)),
+				new BufferDescription(2, (uint)_data.Size * sizeof(int))
+			}
 		};
-		_program = new ComputeProgram(shader, new GroupCount((uint)_inputCount),
-			new DataDescription(0, (uint)_circuitData.Data.Length),
-			new DataDescription(1, (uint)_data.Size * sizeof(int)),
-			new DataDescription(2, (uint)_data.Size * sizeof(int)));
+		_program = new ComputeProgram(shader, new GroupCount((uint)_inputCount));
 	}
 
 	public bool[] Execute(params bool[] inputs) {

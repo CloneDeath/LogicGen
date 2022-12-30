@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using LogicGen.Compute.DataTypes;
+using LogicGen.Compute.Shaders;
 
 namespace LogicGen.Compute.Tests; 
 
@@ -13,10 +14,6 @@ public class CircuitTest {
 	[TestCase(true,  false, false)]
 	[TestCase(true,  true,  true)]
 	public void WorksWithAndCircuit(bool a, bool b, bool expected) {
-		var shader = new ShaderData {
-			Code = File.ReadAllBytes("Shader/circuit.spv"),
-			EntryPoint = "main"
-		};
 		const int circuitSize = 4;
 		var AndCircuit = new[] {
 			false, false, true, false,
@@ -31,11 +28,16 @@ public class CircuitTest {
 				.Concat(AndCircuit.Select(v => v ? 1 : 0).SelectMany(BitConverter.GetBytes))
 				.ToArray()
 		};
-		
-		using var program = new ComputeProgram(shader,new GroupCount(4),
-			new DataDescription(0, (uint)circuitData.Data.Length),
-			new DataDescription(1, circuitSize * sizeof(int)),
-			new DataDescription(2, circuitSize * sizeof(int)));
+		var shader = new ShaderData {
+			Code = File.ReadAllBytes("Shader/circuit.spv"),
+			EntryPoint = "main",
+			Buffers = new IBufferDescription[] {
+				new BufferDescription(0, (uint)circuitData.Data.Length),
+				new BufferDescription(1, circuitSize * sizeof(int)),
+				new BufferDescription(2, circuitSize * sizeof(int))
+			}
+		};
+		using var program = new ComputeProgram(shader,new GroupCount(4));
 		
 		var output = new BinaryOutputData(2, circuitSize);
 		for (var i = 0; i < circuitSize; i++) {

@@ -41,7 +41,7 @@ public class RuleSetResult {
 		return errors / circuitOutput.Length;
 	}
 
-	private static IEnumerable<bool[]> GenerateInputSet(int inputCount) {
+	public static IEnumerable<bool[]> GenerateInputSet(int inputCount) {
 		for (var value = 0; value < Math.Pow(2, inputCount); value++) {
 			var inputSet = new bool[inputCount];
 			for (var digit = 0; digit < inputCount; digit++) {
@@ -51,7 +51,7 @@ public class RuleSetResult {
 		}
 	}
 	
-	private IEnumerable<bool[]> GenerateRandomInputSet(int inputCount) {
+	public IEnumerable<bool[]> GenerateRandomInputSet(int inputCount) {
 		var numberOfCases = Math.Max(Math.Pow(2, inputCount) / 10, 10);
 		for (var value = 0; value < numberOfCases; value++) {
 			var inputSet = new bool[inputCount];
