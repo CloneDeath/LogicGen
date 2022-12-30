@@ -42,9 +42,10 @@ public class ComputeMatrixCircuit : ICircuit {
 				new BufferDescription(0, (uint)_circuitData.Data.Length) ,
 				new BufferDescription(1, (uint)_data.Size * sizeof(int)),
 				new BufferDescription(2, (uint)_data.Size * sizeof(int))
-			}
+			},
+			Workers = new GroupCount((uint)_inputCount)
 		};
-		_program = new ComputeProgram(shader, new GroupCount((uint)_inputCount));
+		_program = new ComputeProgram(shader);
 	}
 
 	public bool[] Execute(params bool[] inputs) {

@@ -19,7 +19,7 @@ public class ComputeProgram : IDisposable {
 
 	private readonly Dictionary<uint, VulkanDeviceMemory> _bindingMemoryMap = new();
 
-	public ComputeProgram(IShaderData shaderData, GroupCount workers) {
+	public ComputeProgram(IShaderData shaderData) {
 		_device = new ComputeDevice();
 
 		var descriptorSets = new List<DescriptorSetInfo>();
@@ -54,7 +54,7 @@ public class ComputeProgram : IDisposable {
 		{
 			_commandBuffer.BindPipeline(_computePipeline);
 			_commandBuffer.BindDescriptorSet(pipelineLayout, _descriptorSet);
-			_commandBuffer.Dispatch(workers);
+			_commandBuffer.Dispatch(shaderData.Workers);
 		}
 		_commandBuffer.End();
 	}

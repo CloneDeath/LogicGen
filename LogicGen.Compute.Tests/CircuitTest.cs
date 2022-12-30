@@ -35,9 +35,10 @@ public class CircuitTest {
 				new BufferDescription(0, (uint)circuitData.Data.Length),
 				new BufferDescription(1, circuitSize * sizeof(int)),
 				new BufferDescription(2, circuitSize * sizeof(int))
-			}
+			},
+			Workers = new GroupCount(4)
 		};
-		using var program = new ComputeProgram(shader,new GroupCount(4));
+		using var program = new ComputeProgram(shader);
 		
 		var output = new BinaryOutputData(2, circuitSize);
 		for (var i = 0; i < circuitSize; i++) {

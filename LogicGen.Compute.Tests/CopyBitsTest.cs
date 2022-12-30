@@ -24,9 +24,10 @@ public class CopyBitsTest {
 			Buffers = new IBufferDescription[] {
 				new BufferDescription(0, (uint)input.Data.Length),
 				new BufferDescription(1, (uint)input.Data.Length)
-			}
+			},
+			Workers = new GroupCount(8 * (uint)input.Data.Length)
 		};
-		using var program = new ComputeProgram(shader, new GroupCount(8 * (uint)input.Data.Length));
+		using var program = new ComputeProgram(shader);
 		
 		program.Execute(new IInputData[] { input }, 
 			new IOutputData[] { output });
