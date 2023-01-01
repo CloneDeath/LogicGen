@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{90DE
 		compile_shaders.sh = compile_shaders.sh
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicGen.Compute.Circuit", "LogicGen.Compute.Circuit\LogicGen.Compute.Circuit.csproj", "{F1CF5462-64EB-4BDE-A6D6-96F6579F1E6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicGen.Compute.Circuit.Tests", "LogicGen.Compute.Circuit.Tests\LogicGen.Compute.Circuit.Tests.csproj", "{70EB6380-6EC8-4BC2-9E10-D1ABB2E50C1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +41,14 @@ Global
 		{66949527-F86C-42BA-8DF6-82B34031B281}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66949527-F86C-42BA-8DF6-82B34031B281}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66949527-F86C-42BA-8DF6-82B34031B281}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1CF5462-64EB-4BDE-A6D6-96F6579F1E6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1CF5462-64EB-4BDE-A6D6-96F6579F1E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1CF5462-64EB-4BDE-A6D6-96F6579F1E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1CF5462-64EB-4BDE-A6D6-96F6579F1E6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70EB6380-6EC8-4BC2-9E10-D1ABB2E50C1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70EB6380-6EC8-4BC2-9E10-D1ABB2E50C1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70EB6380-6EC8-4BC2-9E10-D1ABB2E50C1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70EB6380-6EC8-4BC2-9E10-D1ABB2E50C1B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CBC750CA-CA4C-4469-A3B3-C5EB9F353DA4} = {6D7CDBB5-5725-4B4B-A681-0EF11CCD665D}
