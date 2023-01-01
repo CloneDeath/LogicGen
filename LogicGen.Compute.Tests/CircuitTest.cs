@@ -48,6 +48,7 @@ public class CircuitTest {
 				}
 			}
 		});
+		program.Upload(circuitBuffer, circuitData);
 		
 		for (var i = 0; i < circuitSize; i++) {
 			var inputs = program.DownloadArray<int>(outputBuffer).Select(v => v != 0).ToArray();
