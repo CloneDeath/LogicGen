@@ -5,12 +5,14 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <None Update="**\*.spv">
+        <None Remove="**\*.spv" />
+        <Content Include="**\*.spv">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
+        </Content>
     </ItemGroup>
     
     <ItemGroup>
       <ProjectReference Include="..\LogicGen.Compute\LogicGen.Compute.csproj" />
     </ItemGroup>
+    
 </Project>

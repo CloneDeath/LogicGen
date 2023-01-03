@@ -61,7 +61,7 @@ public class ComputeProgram : IDisposable {
 		_commandBuffer.Dispose();
 		_commandPool.Dispose();
 
-		foreach (var resource in _resources) {
+		foreach (var resource in ((IEnumerable<IDisposable>)_resources).Reverse()) {
 			resource.Dispose();
 		}
 

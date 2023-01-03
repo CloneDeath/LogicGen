@@ -18,7 +18,7 @@ void main() {
     uint id = gl_GlobalInvocationID.x;
     bool d = true;
     for (int i = 0; i < size; i++){
-        uint index = id + (i * size);
+        uint index = i + (id * size);
         bool c = !circuit[index] || inputs[i];
         d = d && c;
     }
